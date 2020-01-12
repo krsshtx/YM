@@ -23,3 +23,5 @@ PCM Size: 152417
 
 may be IPS6404
 https://www.esp32.com/viewtopic.php?t=5961
+
+best speedtest https://project2612.org/details.php?id=389
