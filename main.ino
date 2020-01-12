@@ -23,7 +23,7 @@
 #include "ringbuffer.h"
 
 //Debug variables
-#define DEBUG true //Set this to true for a detailed printout of the header data & any errored command bytes
+#define DEBUG false //Set this to true for a detailed printout of the header data & any errored command bytes
 #define DEBUG_LED PA8
 bool commandFailed = false;
 uint8_t failedCmd = 0x00;
