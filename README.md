@@ -10,3 +10,16 @@ tools - optimize - fastest
 upload method - serial (if ch340g)
 
 rocket knight adventures has register thrash at start and sets addr 21h to ff (test register)
+
+about ram.
+
+Ristar
+Ending 1 - Star Humming
+Sega Genesis
+02/16/95
+Version: 150
+PCM Size too big!
+PCM Size: 152417
+
+may be IPS6404
+https://www.esp32.com/viewtopic.php?t=5961
