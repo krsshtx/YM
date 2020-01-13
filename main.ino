@@ -115,10 +115,11 @@ bool waitstate = false;
 
 uint8_t addr ;
 uint8_t data ;
+uint32_t rdata ;
 
 bool waittdlt = false;
 bool PCMon = true;
-
+int runcount = 0;
 
 void setup()
 {
@@ -586,6 +587,15 @@ void injectPrebuffer()
   #endif
 }
 
+void YMwait(void)
+  {
+    while (ym2612.Read() == 4) {
+       //Serial.println("YM busy");
+    delayMicroseconds(1);
+    }
+
+    
+  }
 //Completely fill command buffer
 void fillBuffer()
 {
@@ -733,6 +743,7 @@ uint16_t parseVGM()
     {
      addr = readBuffer();
      data = readBuffer();
+         YMwait();
     ym2612.Send(addr, data, 0);
     }
     return 0;
@@ -740,6 +751,7 @@ uint16_t parseVGM()
     {
      addr = readBuffer();
      data = readBuffer();
+        YMwait();
     ym2612.Send(addr, data, 1);
     }
     return 0;
@@ -794,12 +806,18 @@ uint16_t parseVGM()
     {
     ready = false;
     clearBuffers();
+    
+    loopCount++;
+    Serial.print("loopCount ");Serial.println(loopCount);
+    
+    if (maxLoops > 1 ) {
     cmdPos = 0;
     injectPrebuffer();
-    loopCount++;
-    ready = true;
-    }
+    ready = true; 
     return 0;
+    }
+    }
+    return 1;
     default:
     commandFailed = true;
     failedCmd = cmd;
@@ -922,6 +940,7 @@ unsigned long tdlt;
 
 void loop()
 {    
+  runcount++;
   startt=micros();
   if (ticknow==true){
 
@@ -940,6 +959,13 @@ void loop()
             
    waitSamples += parseVGM();
    waitstate=false; 
+      #if DEBUG
+      if(commandFailed)
+      {
+        commandFailed = false;
+        Serial.print("CMD ERROR: "); Serial.println(failedCmd, HEX);
+      }
+      #endif
    
      //  {
      //  waitSamples=waitSamples-tdlt;
@@ -985,7 +1011,8 @@ void loop()
 //    pfdone = true;
 //  }
     topUpBuffer();
-  
+  if (runcount>10000) //0,22675737 sec
+  {
   if(loopCount >= maxLoops && playMode != LOOP)
   {
     bool newTrack = false;
@@ -999,18 +1026,15 @@ void loop()
       prepareChips();
     }
   }
-
+  
+  
     
   if(Serial.available() > 0)
     handleSerialIn();
     handleButtons();
-  #if DEBUG
-  if(commandFailed)
-  {
-    commandFailed = false;
-    Serial.print("CMD ERROR: "); Serial.println(failedCmd, HEX);
+  runcount = 0;
   }
-  #endif
+
   }
   
 }

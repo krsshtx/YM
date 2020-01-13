@@ -18,21 +18,55 @@ YM2612::YM2612(Bus * bus)
 void YM2612::Reset()
 {
     GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
-    delayMicroseconds(5);
+    delayMicroseconds(1);
     GPIOB->regs->BSRR = (1U << 4) << (16 * 1); //_IC LOW
-    delayMicroseconds(5);
+    delayMicroseconds(1);
     GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
-    delayMicroseconds(5);
+    delayMicroseconds(1);
     GPIOB->regs->BSRR = (1U << 0) << (16 * 0); //_A1 HI
- ////   delayMicroseconds(5);
- //   GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
- //   delayMicroseconds(5);
-//    GPIOB->regs->BSRR = (1U << 4) << (16 * 1); //_IC LOW
- //   delayMicroseconds(5);
- //   GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
-//    delayMicroseconds(100);
+    delayMicroseconds(1);
+    GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
+    delayMicroseconds(1);
+    GPIOB->regs->BSRR = (1U << 4) << (16 * 1); //_IC LOW
+    delayMicroseconds(1);
+    GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
+    delayMicroseconds(100);
 }
+bool YM2612::Read()
+  {
+    uint32_t rdata;
 
+    GPIOA->regs->ODR &= ~(0x0800); //_A0 LOW
+    GPIOB->regs->BSRR = 0b0000000000000001 << 16; //_A1 PB0
+
+ //   GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
+ //       _bus->Write(0x40);
+ //   GPIOA->regs->ODR &= ~(0x1000); //_WR LOW
+ //   NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;
+ //   GPIOA->regs->ODR |= 0x1000;    //_WR HIGH
+ //   GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
+ //   GPIOA->regs->ODR |= 0x0800;    //_A0 HIGH
+
+ //   GPIOA->regs->ODR &= ~(0x0800); //_A0 LOW
+    GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
+           rdata= _bus->Read();
+         //  Serial.print("rdata b ");Serial.println(rdata); 
+
+    GPIOA->regs->ODR &= ~(0x8000); //_RD LOW
+    NOP;
+     NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;
+    NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;
+
+    GPIOA->regs->ODR |= 0x8000;    //_RD HIGH
+           rdata= _bus->Read();
+    //  Serial.print("rdata ");Serial.println(rdata); 
+    GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
+    GPIOA->regs->ODR |= 0x0800;    //_A0 HIGH
+    
+    
+   return ((rdata & 0x4) >>2);
+   
+  }
 void YM2612::Send(unsigned char addr, unsigned char data, bool setA1) //0x52 = A1 LOW, 0x53 = A1 HIGH
 { 
   if (addr == 0x21) //Rocket Knight Adventures
@@ -46,22 +80,28 @@ void YM2612::Send(unsigned char addr, unsigned char data, bool setA1) //0x52 = A
     GPIOB->regs->BSRR = 0b0000000000000001 ; //_A1 PB0
     break;
   }
-  
+
+
+
+
     GPIOA->regs->ODR &= ~(0x0800); //_A0 LOW
     GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
         _bus->Write(addr);
     GPIOA->regs->ODR &= ~(0x1000); //_WR LOW
-    NOP;
+    NOP;NOP;
+
+    
     GPIOA->regs->ODR |= 0x1000;    //_WR HIGH
     GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
     GPIOA->regs->ODR |= 0x0800;    //_A0 HIGH
     GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
         _bus->Write(data);
+
     GPIOA->regs->ODR &= ~(0x1000); //_WR LOW
-    NOP;
+    NOP;NOP;NOP;NOP;NOP;
+
  
     GPIOA->regs->ODR |= 0x1000;    //_WR HIGH
     GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
-    
-    delayMicroseconds(5);
+   
 }
