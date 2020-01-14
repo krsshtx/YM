@@ -140,8 +140,8 @@ void setup()
   Serial.begin(115200);
 
   //Clocks
-  ymClock.SetFrequency(7670453); //PAL 7600489 //NTSC 7670453
-  snClock.SetFrequency(3579545); //PAL 3546894 //NTSC 3579545 
+  ymClock.SetFrequency(7600489); //PAL 7600489 //NTSC 7670453
+  snClock.SetFrequency(3546894); //PAL 3546894 //NTSC 3579545 
 
   //Chip reset
   ym2612.Reset();
@@ -378,9 +378,10 @@ bool startTrack(FileStrategy fileStrategy, String request)
   if(file.isOpen())
     file.close();
   file = SD.open(fileName, FILE_READ);
-  if(!file)
+  if(!file) {
     Serial.println("Failed to read file");
-
+    startTrack(NEXT);
+            }
   clearBuffers();
   memset(&loopPreBuffer, 0, LOOP_PREBUF_SIZE);
   header.Reset();
@@ -586,16 +587,23 @@ void injectPrebuffer()
   Serial.println(file.curPosition());
   #endif
 }
+int itr = 0;
 
 void YMwait(void)
   {
-   if (ym2612.Read()==1) {
-       //Serial.println("YM busy");
-    delayMicroseconds(1);
+    itr=0;
+   
+      if (ym2612.Read()==1 && itr<3)
+      {
+       
+      //if (itr>0) {  Serial.print("itr ");Serial.print(itr);}
+      delayMicroseconds(1);
+      itr++;
+      }
     }
 
     
-  }
+
 //Completely fill command buffer
 void fillBuffer()
 {

@@ -18,18 +18,18 @@ YM2612::YM2612(Bus * bus)
 void YM2612::Reset()
 {
     GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
-    delayMicroseconds(1);
+    delayMicroseconds(5);
     GPIOB->regs->BSRR = (1U << 4) << (16 * 1); //_IC LOW
-    delayMicroseconds(1);
+    delayMicroseconds(5);
     GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
-    delayMicroseconds(1);
-    GPIOB->regs->BSRR = (1U << 0) << (16 * 0); //_A1 HI
-    delayMicroseconds(1);
-    GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
-    delayMicroseconds(1);
-    GPIOB->regs->BSRR = (1U << 4) << (16 * 1); //_IC LOW
-    delayMicroseconds(1);
-    GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
+    delayMicroseconds(5);
+  //  GPIOB->regs->BSRR = (1U << 0) << (16 * 0); //_A1 HI
+  //  delayMicroseconds(1);
+  //  GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
+  //  delayMicroseconds(1);
+  //  GPIOB->regs->BSRR = (1U << 4) << (16 * 1); //_IC LOW
+  //  delayMicroseconds(1);
+  //  GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
     delayMicroseconds(100);
     
 
@@ -46,7 +46,7 @@ unsigned char YM2612::Read()
     GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
     GPIOA->regs->ODR &= ~(0x8000); //_RD LOW
  
-    NOP;NOP;NOP;NOP;NOP;
+    NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;
 
     rdata= _bus->Read();
     GPIOA->regs->ODR |= 0x8000;    //_RD HIGH
@@ -76,7 +76,7 @@ void YM2612::Send(unsigned char addr, unsigned char data, bool setA1) //0x52 = A
     GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
         _bus->Write(addr);
     GPIOA->regs->ODR &= ~(0x1000); //_WR LOW
-    NOP;NOP;
+    NOP;NOP;NOP;NOP;
 
     GPIOA->regs->ODR |= 0x1000;    //_WR HIGH
     GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
@@ -85,7 +85,7 @@ void YM2612::Send(unsigned char addr, unsigned char data, bool setA1) //0x52 = A
         _bus->Write(data);
 
     GPIOA->regs->ODR &= ~(0x1000); //_WR LOW
-    NOP;NOP;NOP;NOP;NOP;
+    NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;
 
     GPIOA->regs->ODR |= 0x1000;    //_WR HIGH
     GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
