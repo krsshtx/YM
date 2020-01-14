@@ -589,7 +589,7 @@ void injectPrebuffer()
 
 void YMwait(void)
   {
-    while (ym2612.Read() == 4) {
+   if (ym2612.Read()==1) {
        //Serial.println("YM busy");
     delayMicroseconds(1);
     }

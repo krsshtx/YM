@@ -31,39 +31,30 @@ void YM2612::Reset()
     delayMicroseconds(1);
     GPIOB->regs->BSRR = (1U << 4) << (16 * 0); //_IC HIGH
     delayMicroseconds(100);
+    
+
+
 }
-bool YM2612::Read()
+unsigned char YM2612::Read()
   {
     uint32_t rdata;
 
-    GPIOA->regs->ODR &= ~(0x0800); //_A0 LOW
+
     GPIOB->regs->BSRR = 0b0000000000000001 << 16; //_A1 PB0
 
- //   GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
- //       _bus->Write(0x40);
- //   GPIOA->regs->ODR &= ~(0x1000); //_WR LOW
- //   NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;
- //   GPIOA->regs->ODR |= 0x1000;    //_WR HIGH
- //   GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
- //   GPIOA->regs->ODR |= 0x0800;    //_A0 HIGH
-
- //   GPIOA->regs->ODR &= ~(0x0800); //_A0 LOW
+    GPIOA->regs->ODR &= ~(0x0800); //_A0 LOW
     GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
-           rdata= _bus->Read();
-         //  Serial.print("rdata b ");Serial.println(rdata); 
-
     GPIOA->regs->ODR &= ~(0x8000); //_RD LOW
-    NOP;
-     NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;
-    NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;
+ 
+    NOP;NOP;NOP;NOP;NOP;
 
+    rdata= _bus->Read();
     GPIOA->regs->ODR |= 0x8000;    //_RD HIGH
-           rdata= _bus->Read();
-    //  Serial.print("rdata ");Serial.println(rdata); 
+       
+   
     GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
     GPIOA->regs->ODR |= 0x0800;    //_A0 HIGH
-    
-    
+    //   Serial.print("rdata ");Serial.println(rdata); 
    return ((rdata & 0x4) >>2);
    
   }
@@ -81,16 +72,12 @@ void YM2612::Send(unsigned char addr, unsigned char data, bool setA1) //0x52 = A
     break;
   }
 
-
-
-
     GPIOA->regs->ODR &= ~(0x0800); //_A0 LOW
     GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
         _bus->Write(addr);
     GPIOA->regs->ODR &= ~(0x1000); //_WR LOW
     NOP;NOP;
 
-    
     GPIOA->regs->ODR |= 0x1000;    //_WR HIGH
     GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
     GPIOA->regs->ODR |= 0x0800;    //_A0 HIGH
@@ -100,7 +87,6 @@ void YM2612::Send(unsigned char addr, unsigned char data, bool setA1) //0x52 = A
     GPIOA->regs->ODR &= ~(0x1000); //_WR LOW
     NOP;NOP;NOP;NOP;NOP;
 
- 
     GPIOA->regs->ODR |= 0x1000;    //_WR HIGH
     GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
    
