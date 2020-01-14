@@ -10,7 +10,7 @@ tools - optimize - fastest
 upload method - serial (if ch340g)
 
 rocket knight adventures has register thrash at start and sets addr 21h to ff (test register)
-http://gendev.spritesmind.net/forum/viewtopic.php?t=1118
+
 
 about ram.
 
