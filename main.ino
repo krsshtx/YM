@@ -743,7 +743,7 @@ uint16_t parseVGM()
   //    }
       pcmBufferPosition++;
       ym2612.Send(addr, data, 0);}
-      
+    
       return wait;
      // return 0;
     }
@@ -793,7 +793,9 @@ uint16_t parseVGM()
         Serial.print("PCM Size: ");Serial.println(PCMSize);
        // vgmVerify();
        // prepareChips();
-        return 0;
+       for (uint32_t i = 0; i < PCMSize; i++){
+        readBuffer();}
+              
       }
       if (PCMon==true){
       for (uint32_t i = 0; i < PCMSize; i++)
