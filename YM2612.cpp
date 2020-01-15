@@ -39,53 +39,64 @@ unsigned char YM2612::Read()
   {
     uint32_t rdata;
 
-
-    GPIOB->regs->BSRR = 0b0000000000000001 << 16; //_A1 PB0
-
-    GPIOA->regs->ODR &= ~(0x0800); //_A0 LOW
     GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
+  //GPIOB->regs->BSRR = 0b0000000000000001 << 16; //_A1 PB0
+    GPIOB->regs->ODR &= ~(0x1);
+    GPIOA->regs->ODR &= ~(0x0800); //_A0 LOW
+    NOP;
+ // GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
     GPIOA->regs->ODR &= ~(0x8000); //_RD LOW
  
-    NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;
+    NOP;
 
+    GPIOA->regs->CRL = (GPIOA->regs->CRL & 0xFFFFF000) | 0x00000833; //PA0, PA1, PA2 OUTPUT
+    GPIOA->regs->ODR |= 0x4 ;
     rdata= _bus->Read();
+
+    GPIOA->regs->CRL = (GPIOA->regs->CRL & 0xFFFFF000) | 0x00000333; //PA0, PA1, PA2 OUTPUT
+
     GPIOA->regs->ODR |= 0x8000;    //_RD HIGH
        
    
-    GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
+  //GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
     GPIOA->regs->ODR |= 0x0800;    //_A0 HIGH
-    //   Serial.print("rdata ");Serial.println(rdata); 
-   return ((rdata & 0x4) >>2);
+    GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
+  //  Serial.print((rdata>>7)&1);Serial.print((rdata>>6)&1);Serial.print((rdata>>5)&1);Serial.print((rdata>>4)&1);Serial.print((rdata>>3)&1);Serial.print((rdata>>2)&1);Serial.print((rdata>>1)&1);Serial.println(rdata&1);
+    return ((rdata & 0x4) >>2);
    
   }
 void YM2612::Send(unsigned char addr, unsigned char data, bool setA1) //0x52 = A1 LOW, 0x53 = A1 HIGH
 { 
   if (addr == 0x21) //Rocket Knight Adventures
   return;
+  GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
   switch(setA1)
   {
     case 0:
-    GPIOB->regs->BSRR = 0b0000000000000001 << 16; //_A1 PB0
+  //GPIOB->regs->BSRR = 0b0000000000000001 << 16; //_A1 PB0
+    GPIOB->regs->ODR &= ~(0x1);
     break;
     case 1:
-    GPIOB->regs->BSRR = 0b0000000000000001 ; //_A1 PB0
+  //GPIOB->regs->BSRR = 0b0000000000000001 ; //_A1 PB0
+    GPIOB->regs->ODR |= 0x1;
     break;
   }
 
     GPIOA->regs->ODR &= ~(0x0800); //_A0 LOW
-    GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
+    NOP;
+  //GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
         _bus->Write(addr);
     GPIOA->regs->ODR &= ~(0x1000); //_WR LOW
-    NOP;NOP;NOP;NOP;
+    NOP;
 
     GPIOA->regs->ODR |= 0x1000;    //_WR HIGH
-    GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
+//  GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
     GPIOA->regs->ODR |= 0x0800;    //_A0 HIGH
-    GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
+ // GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
         _bus->Write(data);
 
     GPIOA->regs->ODR &= ~(0x1000); //_WR LOW
-    NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;NOP;
+    NOP;
 
     GPIOA->regs->ODR |= 0x1000;    //_WR HIGH
     GPIOB->regs->ODR |= 0x0808;    //_CS HIGH

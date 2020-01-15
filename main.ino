@@ -28,6 +28,8 @@
 bool commandFailed = false;
 uint8_t failedCmd = 0x00;
 
+#define NOP __asm__ __volatile__ ("nop\n\t")
+
 //Prototypes
 void setup();
 void loop();
@@ -588,19 +590,22 @@ void injectPrebuffer()
   #endif
 }
 int itr = 0;
-
+int ymread = 0;
 void YMwait(void)
   {
     itr=0;
-   
-      if (ym2612.Read()==1 && itr<3)
+      ymread=ym2612.Read();
+      if (ymread > 0 )
       {
-       
-      //if (itr>0) {  Serial.print("itr ");Serial.print(itr);}
-      delayMicroseconds(1);
-      itr++;
+       //  {Serial.print("itr ");Serial.print(itr);
+       // Serial.print(" ymread ");Serial.println(ymread);}
+        NOP;NOP;
+        //ymread=ym2612.Read();
+        itr++;
+        
       }
-    }
+
+  }
 
     
 
@@ -751,16 +756,18 @@ uint16_t parseVGM()
     {
      addr = readBuffer();
      data = readBuffer();
-         YMwait();
+         
     ym2612.Send(addr, data, 0);
+    YMwait();
     }
     return 0;
     case 0x53:
     {
      addr = readBuffer();
      data = readBuffer();
-        YMwait();
+        
     ym2612.Send(addr, data, 1);
+    YMwait();
     }
     return 0;
     case 0x4F:
