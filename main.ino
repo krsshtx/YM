@@ -589,25 +589,8 @@ void injectPrebuffer()
   Serial.println(file.curPosition());
   #endif
 }
-int itr = 0;
-int ymread = 0;
-void YMwait(void)
-  {
-    itr=0;
-      ymread=ym2612.Read();
-      if (ymread > 0 )
-      {
-       //  {Serial.print("itr ");Serial.print(itr);
-       // Serial.print(" ymread ");Serial.println(ymread);}
-        NOP;NOP;
-        //ymread=ym2612.Read();
-        itr++;
-        
-      }
 
-  }
 
-    
 
 //Completely fill command buffer
 void fillBuffer()
@@ -618,6 +601,7 @@ void fillBuffer()
 //Add to buffer from SD card. Returns true when buffer is full
 bool topUpBuffer() 
 {
+  uint8_t tcn=0;
   if(cmdBuffer.full())
     return true;
   if(cmdBuffer.available() >= file.size()) 
@@ -747,6 +731,7 @@ uint16_t parseVGM()
  
   //    }
       pcmBufferPosition++;
+      //YMwait();
       ym2612.Send(addr, data, 0);}
     
       return wait;
@@ -756,18 +741,18 @@ uint16_t parseVGM()
     {
      addr = readBuffer();
      data = readBuffer();
-         
+        ym2612.Read();
     ym2612.Send(addr, data, 0);
-    YMwait();
+    
     }
     return 0;
     case 0x53:
     {
      addr = readBuffer();
      data = readBuffer();
-        
+        ym2612.Read();
     ym2612.Send(addr, data, 1);
-    YMwait();
+    
     }
     return 0;
     case 0x4F:
@@ -969,7 +954,7 @@ void loop()
  //        topUpBuffer();
        
     
-  if (waitSamples == 0 ) {
+ // if (waitSamples == 0 ) {
   while(waitSamples == 0 )
   {
 
@@ -992,7 +977,7 @@ void loop()
    
    // }  
   
-  }
+//  }
 
   }
     endt=micros();
@@ -1055,3 +1040,4 @@ void loop()
   }
   
 }
+

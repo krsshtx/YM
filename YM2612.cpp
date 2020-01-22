@@ -38,6 +38,7 @@ void YM2612::Reset()
 unsigned char YM2612::Read()
   {
     uint32_t rdata;
+    uint32_t ymread;
 
     GPIOB->regs->ODR &= ~(0x0808); //_CS LOW
   //GPIOB->regs->BSRR = 0b0000000000000001 << 16; //_A1 PB0
@@ -51,12 +52,30 @@ unsigned char YM2612::Read()
 
     GPIOA->regs->CRL = (GPIOA->regs->CRL & 0xFFFFF000) | 0x00000833; //PA0, PA1, PA2 OUTPUT
     GPIOA->regs->ODR |= 0x4 ;
-    rdata= _bus->Read();
+
+    ymread = 1;
+    while (ymread > 0 )
+      {
+
+      rdata= GPIOA->regs->IDR;
+
+      ymread = ((rdata & 0x4) >>2);
+
+        //ymread=ym2612.Read();
+        //if (itr>1) {
+        // Serial.print("itr ");Serial.print(itr);
+        // Serial.print(" ymread ");Serial.println(ymread);
+        //}
+       if (ymread > 0) {
+        NOP;NOP;NOP;NOP;NOP;NOP;NOP;
+        NOP;NOP;NOP;NOP;NOP;NOP;NOP;
+        NOP;NOP;NOP;NOP;NOP;NOP;NOP;
+
+        }
+      }
 
     GPIOA->regs->CRL = (GPIOA->regs->CRL & 0xFFFFF000) | 0x00000333; //PA0, PA1, PA2 OUTPUT
-
     GPIOA->regs->ODR |= 0x8000;    //_RD HIGH
-       
    
   //GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
     GPIOA->regs->ODR |= 0x0800;    //_A0 HIGH
@@ -102,3 +121,4 @@ void YM2612::Send(unsigned char addr, unsigned char data, bool setA1) //0x52 = A
     GPIOB->regs->ODR |= 0x0808;    //_CS HIGH
    
 }
+
