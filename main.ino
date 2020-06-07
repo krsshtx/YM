@@ -254,6 +254,47 @@ void prepareChips()
   sn76489.Reset();
 }
 
+void notes_off() 
+{
+
+  
+      for (unsigned char tl=0x40;tl<0x4f;tl++) { //total level
+     ym2612.Read();
+     ym2612.Send(tl, 0x7F, 0); //bank 0
+      }
+
+      for (unsigned char tl=0x40;tl<0x4f;tl++) { //total level
+     ym2612.Read();
+     ym2612.Send(tl, 0x7F, 1); //bank 1
+      }
+
+      for (unsigned char rr=0x80;rr<0x8f;rr++) { //release rate, sustain level
+     ym2612.Read();
+     ym2612.Send(rr, 0xFF, 0); //bank 0
+      }
+
+      for (unsigned char rr=0x80;rr<0x8f;rr++) { //release rate, sustain level
+     ym2612.Read();
+     ym2612.Send(rr, 0xFF, 1); //bank 1
+      }
+      
+      for (unsigned char ko=1;ko<7;ko++) { // key off
+     ym2612.Read();
+     ym2612.Send(0x28, ko, 0);
+      }
+      
+      for (unsigned char pa=0xb4;pa<0xb7;pa++) { //channel off
+     ym2612.Read();
+     ym2612.Send(pa, 0x0, 0); //bank 0
+      }
+
+      for (unsigned char pa=0xb4;pa<0xb7;pa++) { //channel off
+     ym2612.Read();
+     ym2612.Send(pa, 0x0, 1); //bank 1
+      }
+    //  Serial.println("note off done. ");
+  
+}
 //Mount file and prepare for playback. Returns true if file is found.
 bool startTrack(FileStrategy fileStrategy, String request)
 {
@@ -466,7 +507,7 @@ bool vgmVerify()
   }
   Serial.println("VGM OK!");
   readGD3();
- // drawOLEDTrackInfo();
+  drawOLEDTrackInfo();
   Serial.println(gd3.enGameName);
   Serial.println(gd3.enTrackName);
   Serial.println(gd3.enSystemName);
@@ -731,7 +772,7 @@ uint16_t parseVGM()
  
   //    }
       pcmBufferPosition++;
-      //YMwait();
+      //ym2612.Read();
       ym2612.Send(addr, data, 0);}
     
       return wait;
@@ -741,7 +782,7 @@ uint16_t parseVGM()
     {
      addr = readBuffer();
      data = readBuffer();
-        ym2612.Read();
+     ym2612.Read();
     ym2612.Send(addr, data, 0);
     
     }
@@ -808,6 +849,9 @@ uint16_t parseVGM()
     {
     ready = false;
     clearBuffers();
+
+    notes_off();
+    sn76489.Reset();
     
     loopCount++;
     Serial.print("loopCount ");Serial.println(loopCount);
@@ -1018,10 +1062,18 @@ void loop()
   if(loopCount >= maxLoops && playMode != LOOP)
   {
     bool newTrack = false;
-    if(playMode == SHUFFLE)
+    if(playMode == SHUFFLE) {
+     // notes_off();
+      delay(3000);
+
       newTrack = startTrack(RND);
-    if(playMode == IN_ORDER)
-      newTrack = startTrack(NEXT);
+    }
+    if(playMode == IN_ORDER) {
+
+     // notes_off();
+      delay(3000);
+
+      newTrack = startTrack(NEXT); }
     if(newTrack)
     {
       vgmVerify();
